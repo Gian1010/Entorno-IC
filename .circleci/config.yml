@@ -7,11 +7,9 @@ jobs:
     steps:
       - checkout
       - run: npm install
-
       - run:
           name: Run Tests
           command: npm test
-
       - run:
           name: Notify Slack on Success
           when: on_success
@@ -19,7 +17,6 @@ jobs:
             curl -X POST -H 'Content-type: application/json' \
             --data '{"text":"✅ ¡Los tests pasaron con éxito! 🎉"}' \
             $SLACK_WEBHOOK_URL_GIAN
-
       - run:
           name: Notify Slack on Failure
           when: on_fail
@@ -30,12 +27,37 @@ jobs:
 
   sonarcloud:
     docker:
-      - image: sonarsource/sonar-scanner-cli:latest
+      - image: cimg/node:18.17.1
     steps:
       - checkout
       - run:
-          name: Run SonarCloud Analysis
+          name: Instalar jq y dependencias
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y jq openjdk-17-jre-headless
+      - run:
+          name: Instalar sonar-scanner
+          command: npm install -g sonar-scanner
+      - run:
+          name: Ejecutar análisis SonarCloud
           command: sonar-scanner
+      - run:
+          name: Verificar estado del Quality Gate
+          command: |
+            sleep 15
+            STATUS=$(curl -s -u $SONAR_TOKEN: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=Gian1010_Entorno-IC" | jq -r '.projectStatus.status')
+            if [ "$STATUS" != "OK" ]; then
+              echo "❌ Quality Gate falló: $STATUS"
+              curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":"🚨 *El análisis de SonarCloud falló el Quality Gate.* Revisá: https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
+              $SLACK_WEBHOOK_URL_GIAN
+              exit 1
+            else
+              echo "✅ Quality Gate pasó"
+              curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":"✅ *El código pasó el Quality Gate en SonarCloud.* ¡Buen trabajo! 🎉\n🔗 https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
+              $SLACK_WEBHOOK_URL_GIAN
+            fi
 
 workflows:
   version: 2
@@ -45,6 +67,7 @@ workflows:
       - sonarcloud:
           requires:
             - test
+
 
 
 #Usa una imagen de Docker con Node.js 18.17.1.
