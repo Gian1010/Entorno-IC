@@ -6,16 +6,6 @@ describe('Función suma', () => {
         const resultado = suma(6, 4);
     assert.strictEqual(resultado, 10);
     });
-
-    it('debería retornar 10 cuando se suman 6 + 4', () => {
-        const resultado = suma(6, 4);
-    assert.strictEqual(resultado, 11);
-    });
-
-    it('debería retornar 10 cuando se suman 6 + 4', () => {
-        const resultado = suma(6, 4);
-    assert.strictEqual(resultado, 10);
-    });
 });
 
 //it lo uso para definir una prueba individual

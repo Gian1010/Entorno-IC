@@ -18,4 +18,4 @@ workflows:
 #Usa una imagen de Docker con Node.js 18.17.1.
 #Clona tu código (checkout).
 #Ejecuta npm install para instalar dependencias.
-#Ejecuta npm test para correr tus pruebas con Mocha.
+#Ejecuta npm test para correr tus pruebas con Mocha. error de test -> era por node_modules en el repo lo arregle con gitignore
