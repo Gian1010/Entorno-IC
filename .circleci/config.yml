@@ -7,9 +7,15 @@ jobs:
     steps:
       - checkout
       - run: npm install
+
       - run:
           name: Run Tests
           command: npm test
+
+      - run:
+          name: SonarCloud Analysis
+          command: npx sonar-scanner
+
       - run:
           name: Notify Slack on Success
           when: on_success
@@ -17,6 +23,7 @@ jobs:
             curl -X POST -H 'Content-type: application/json' \
             --data '{"text":"✅ ¡Los tests pasaron con éxito! 🎉🎉🎉"}' \
             $SLACK_WEBHOOK_URL_GIAN
+
       - run:
           name: Notify Slack on Failure
           when: on_fail
@@ -30,6 +37,7 @@ workflows:
   test:
     jobs:
       - test
+
 
 
 #Usa una imagen de Docker con Node.js 18.17.1.
