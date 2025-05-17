@@ -7,13 +7,30 @@ jobs:
     steps:
       - checkout
       - run: npm install
-      - run: npm test
+      - run:
+          name: Run Tests
+          command: npm test
+      - run:
+          name: Notify Slack on Success
+          when: on_success
+          command: |
+            curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"✅ ¡Los tests pasaron con éxito! 🎉🎉🎉"}' \
+            $SLACK_WEBHOOK_URL_GIAN
+      - run:
+          name: Notify Slack on Failure
+          when: on_fail
+          command: |
+            curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"❌ *Fallo en los tests* en CircleCI 🚨🚨🚨"}' \
+            $SLACK_WEBHOOK_URL_GIAN
 
 workflows:
   version: 2
   test:
     jobs:
       - test
+
 
 #Usa una imagen de Docker con Node.js 18.17.1.
 #Clona tu código (checkout).
