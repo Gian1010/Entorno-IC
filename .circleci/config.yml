@@ -30,28 +30,36 @@ jobs:
 
   sonarcloud:
     docker:
-      - image: sonarsource/sonar-scanner-cli:latest
+      - image: cimg/node:18.17.1
     steps:
       - checkout
       - run:
-          name: Run SonarCloud Analysis
-          command: sonar-scanner
-
-      - run:
-          name: Notify Slack with SonarCloud Quality Gate Status
+          name: Instalar JQ
           command: |
-            apt-get update && apt-get install -y jq
-            STATUS=$(curl -s -u $SONAR_TOKEN: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=Gian1010_Entorno-IC" | jq -r '.projectStatus.status')
-
-            if [ "$STATUS" = "OK" ]; then
+            sudo apt-get update
+            sudo apt-get install -y jq
+      - run:
+          name: Instalar sonar-scanner
+          command: npm install -g sonar-scanner
+      - run:
+          name: Ejecutar análisis SonarCloud
+          command: sonar-scanner
+      - run:
+          name: Verificar estado del Quality Gate
+          command: |
+            sleep 10
+            STATUS=$(curl -s -u $SONAR_TOKEN: https://sonarcloud.io/api/qualitygates/project_status?projectKey=Gian1010_Entorno-IC | jq -r '.projectStatus.status')
+            if [ "$STATUS" != "OK" ]; then
+              echo "❌ Quality Gate falló: $STATUS"
               curl -X POST -H 'Content-type: application/json' \
-              --data '{"text":"✅ *SonarCloud*: Calidad del código *OK*. Todo limpio 🔍✅"}' \
-              $SLACK_WEBHOOK_URL_GIAN
-            else
-              curl -X POST -H 'Content-type: application/json' \
-              --data "{\"text\":\"❌ *SonarCloud*: Quality Gate *fallido* 🚨 Estado: $STATUS. Revisá el reporte: https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC\"}" \
+              --data '{"text":"🚨 *El análisis de SonarCloud falló el Quality Gate.* Revisá: https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
               $SLACK_WEBHOOK_URL_GIAN
               exit 1
+            else
+              echo "✅ Quality Gate pasó"
+              curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":"✅ *El código pasó el Quality Gate en SonarCloud.* ¡Buen trabajo! 🎉\n🔗 https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
+              $SLACK_WEBHOOK_URL_GIAN
             fi
 
 workflows:
@@ -62,6 +70,7 @@ workflows:
       - sonarcloud:
           requires:
             - test
+
 
 
 
