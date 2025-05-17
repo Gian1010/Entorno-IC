@@ -51,9 +51,9 @@ jobs:
               $SLACK_WEBHOOK_URL_GIAN
               exit 1
             else
-              echo "✅ Quality Gate pasó"
+              echo "✅ Quality Gate pasó con Exito"
               curl -X POST -H 'Content-type: application/json' \
-              --data '{"text":"✅ *El código pasó el Quality Gate en SonarCloud.* ¡Buen trabajo! 🎉\n🔗 https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
+              --data '{"text":"✅ *El código pasó el Quality Gate en SonarCloud.* ¡Excelente trabajo Gianfranco! 🎉🎉🎉\n🔗 https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
               $SLACK_WEBHOOK_URL_GIAN
             fi
 
