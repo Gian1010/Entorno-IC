@@ -13,12 +13,6 @@ jobs:
           command: npm test
 
       - run:
-          name: Fix permissions and run SonarCloud analysis
-          command: |
-            chmod +x ./node_modules/sonar-scanner/bin/sonar-scanner || true
-            ./node_modules/.bin/sonar-scanner
-
-      - run:
           name: Notify Slack on Success
           when: on_success
           command: |
@@ -34,11 +28,23 @@ jobs:
             --data '{"text":"❌ *Fallo en los tests* en CircleCI 🚨"}' \
             $SLACK_WEBHOOK_URL_GIAN
 
+  sonarcloud:
+    docker:
+      - image: sonarsource/sonar-scanner-cli:latest
+    steps:
+      - checkout
+      - run:
+          name: Run SonarCloud Analysis
+          command: sonar-scanner
+
 workflows:
   version: 2
   test_and_analyze:
     jobs:
       - test
+      - sonarcloud:
+          requires:
+            - test
 
 
 
