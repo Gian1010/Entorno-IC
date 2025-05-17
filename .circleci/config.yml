@@ -37,6 +37,23 @@ jobs:
           name: Run SonarCloud Analysis
           command: sonar-scanner
 
+      - run:
+          name: Notify Slack with SonarCloud Quality Gate Status
+          command: |
+            apt-get update && apt-get install -y jq
+            STATUS=$(curl -s -u $SONAR_TOKEN: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=Gian1010_Entorno-IC" | jq -r '.projectStatus.status')
+
+            if [ "$STATUS" = "OK" ]; then
+              curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":"✅ *SonarCloud*: Calidad del código *OK*. Todo limpio 🔍✅"}' \
+              $SLACK_WEBHOOK_URL_GIAN
+            else
+              curl -X POST -H 'Content-type: application/json' \
+              --data "{\"text\":\"❌ *SonarCloud*: Quality Gate *fallido* 🚨 Estado: $STATUS. Revisá el reporte: https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC\"}" \
+              $SLACK_WEBHOOK_URL_GIAN
+              exit 1
+            fi
+
 workflows:
   version: 2
   test_and_analyze:
