@@ -30,17 +30,12 @@ jobs:
 
   sonarcloud:
     docker:
-      - image: cimg/node:18.17.1
+      - image: sonarsource/sonar-scanner-cli:latest
     steps:
       - checkout
       - run:
-          name: Instalar JQ
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y jq
-      - run:
-          name: Instalar sonar-scanner
-          command: npm install -g sonar-scanner
+          name: Instalar jq
+          command: apk add --no-cache jq
       - run:
           name: Ejecutar análisis SonarCloud
           command: sonar-scanner
