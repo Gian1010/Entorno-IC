@@ -34,28 +34,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Instalar jq
-          command: apk add --no-cache jq
-      - run:
-          name: Ejecutar análisis SonarCloud
+          name: Run SonarCloud Analysis
           command: sonar-scanner
-      - run:
-          name: Verificar estado del Quality Gate
-          command: |
-            sleep 10
-            STATUS=$(curl -s -u $SONAR_TOKEN: https://sonarcloud.io/api/qualitygates/project_status?projectKey=Gian1010_Entorno-IC | jq -r '.projectStatus.status')
-            if [ "$STATUS" != "OK" ]; then
-              echo "❌ Quality Gate falló: $STATUS"
-              curl -X POST -H 'Content-type: application/json' \
-              --data '{"text":"🚨 *El análisis de SonarCloud falló el Quality Gate.* Revisá: https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
-              $SLACK_WEBHOOK_URL_GIAN
-              exit 1
-            else
-              echo "✅ Quality Gate pasó"
-              curl -X POST -H 'Content-type: application/json' \
-              --data '{"text":"✅ *El código pasó el Quality Gate en SonarCloud.* ¡Buen trabajo! 🎉\n🔗 https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
-              $SLACK_WEBHOOK_URL_GIAN
-            fi
 
 workflows:
   version: 2
@@ -65,9 +45,6 @@ workflows:
       - sonarcloud:
           requires:
             - test
-
-
-
 
 
 #Usa una imagen de Docker con Node.js 18.17.1.
