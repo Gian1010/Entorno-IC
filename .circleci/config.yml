@@ -1,42 +1,33 @@
-version: 2.1
+steps:
+  - checkout
+  - run: npm install
 
-jobs:
-  test:
-    docker:
-      - image: cimg/node:18.17.1
-    steps:
-      - checkout
-      - run: npm install
+  - run:
+      name: Run Tests
+      command: npm test
 
-      - run:
-          name: Run Tests
-          command: npm test
+  - run:
+      name: Fix permissions and run SonarCloud analysis
+      command: |
+        chmod +x ./node_modules/sonar-scanner/bin/sonar-scanner
+        ./node_modules/.bin/sonar-scanner
 
-      - run:
-          name: SonarCloud Analysis
-          command: ./node_modules/.bin/sonar-scanner
+  - run:
+      name: Notify Slack on Success
+      when: on_success
+      command: |
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{"text":"✅ ¡Los tests pasaron con éxito! 🎉🎉🎉"}' \
+        $SLACK_WEBHOOK_URL_GIAN
 
-      - run:
-          name: Notify Slack on Success
-          when: on_success
-          command: |
-            curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"✅ ¡Los tests pasaron con éxito! 🎉🎉🎉"}' \
-            $SLACK_WEBHOOK_URL_GIAN
+  - run:
+      name: Notify Slack on Failure
+      when: on_fail
+      command: |
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{"text":"❌ *Fallo en los tests* en CircleCI 🚨🚨🚨"}' \
+        $SLACK_WEBHOOK_URL_GIAN
 
-      - run:
-          name: Notify Slack on Failure
-          when: on_fail
-          command: |
-            curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"❌ *Fallo en los tests* en CircleCI 🚨🚨🚨"}' \
-            $SLACK_WEBHOOK_URL_GIAN
-
-workflows:
-  version: 2
-  test:
-    jobs:
-      - test
 
 
 
