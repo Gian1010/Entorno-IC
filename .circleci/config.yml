@@ -14,7 +14,7 @@ jobs:
 
       - run:
           name: SonarCloud Analysis
-          command: npx sonar-scanner
+          command: ./node_modules/.bin/sonar-scanner
 
       - run:
           name: Notify Slack on Success
