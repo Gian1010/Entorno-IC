@@ -1,50 +1,111 @@
 version: 2.1
 
+# (Opcional pero recomendado) Orbs para simplificar
+# orbs:
+#   node: circleci/node@5.2.0 # O la versión que estés usando
+#   sonarcloud: sonarsource/sonarcloud@1.2.0 # Orb oficial de SonarSource
+
 jobs:
   test:
     docker:
-      - image: cimg/node:18.17.1
+      - image: cimg/node:18.17.1 # Asegúrate que esta versión de Node es compatible con tu proyecto
     steps:
       - checkout
-      - run: npm install
-
       - run:
-          name: Run Tests
-          command: npm test
-
+          name: Install Dependencies
+          command: npm install
       - run:
-          name: Notify Slack on Success
+          name: Run Mocha Tests
+          command: npm test # Asumiendo que esto también podría generar reportes de cobertura si los necesitas para SonarCloud
+
+      # Notificaciones de Slack para los tests de Mocha (tu configuración actual)
+      - run:
+          name: Notify Slack on Test Success
           when: on_success
           command: |
             curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"✅ ¡Los tests pasaron con éxito! 🎉"}' \
+            --data '{"text":"✅ ¡Los tests de Mocha pasaron con éxito! 🎉 Branch: '${CIRCLE_BRANCH}' Build: <${CIRCLE_BUILD_URL}|Ver Build>"}' \
             $SLACK_WEBHOOK_URL_GIAN
-
       - run:
-          name: Notify Slack on Failure
+          name: Notify Slack on Test Failure
           when: on_fail
           command: |
             curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"❌ *Fallo en los tests* en CircleCI 🚨"}' \
+            --data '{"text":"❌ *Fallo en los tests de Mocha* en CircleCI 🚨 Branch: '${CIRCLE_BRANCH}' Build: <${CIRCLE_BUILD_URL}|Ver Build>"}' \
             $SLACK_WEBHOOK_URL_GIAN
 
-  sonarcloud:
+  sonarcloud_analysis: # Renombrado para claridad y evitar confusión con el orb si se usa
     docker:
-      - image: sonarsource/sonar-scanner-cli:latest
+      - image: sonarsource/sonar-scanner-cli:latest # Imagen oficial de SonarScanner
+    environment: # Variables de entorno específicas para este job
+      # Estas variables deben estar definidas en CircleCI Project Settings o en un Contexto
+      # SONAR_TOKEN: definido en CircleCI
+      # SONAR_ORGANIZATION: definido en CircleCI
+      # SONAR_PROJECT_KEY: definido en CircleCI (ej: tu-organizacion_tu-repo)
+      # GITHUB_TOKEN: (Opcional, pero recomendado para la decoración de PRs en GitHub)
+      SONAR_HOST_URL: "https://sonarcloud.io" # URL de SonarCloud
     steps:
-      - checkout
+      - checkout # Necesario para que el scanner acceda al código fuente
+      # (Opcional) Si necesitas artefactos del job 'test' (ej. reportes de cobertura):
+      # - attach_workspace:
+      #     at: ./ # Adjunta el workspace en el directorio actual
+
       - run:
           name: Run SonarCloud Analysis
-          command: sonar-scanner
+          command: |
+            # Preparamos los parámetros para SonarScanner
+            SCANNER_PARAMS="-Dsonar.organization=${SONAR_ORGANIZATION} \
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.login=${SONAR_TOKEN}"
+
+            # Añadir parámetros para Pull Request si es un build de PR
+            if [ -n "${CIRCLE_PULL_REQUEST}" ]; then
+              PR_NUMBER=$(basename "${CIRCLE_PULL_REQUEST}")
+              SCANNER_PARAMS="${SCANNER_PARAMS} \
+                              -Dsonar.pullrequest.base=${CIRCLE_BRANCH} \
+                              -Dsonar.pullrequest.branch=${CIRCLE_PULL_REQUEST##*/} \
+                              -Dsonar.pullrequest.key=${PR_NUMBER} \
+                              -Dsonar.pullrequest.provider=github \
+                              -Dsonar.pullrequest.github.repository=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+              # (Opcional) Si usas GITHUB_TOKEN para la decoración de PRs
+              # SCANNER_PARAMS="${SCANNER_PARAMS} -Dsonar.pullrequest.github.token.secured=${GITHUB_TOKEN}"
+            fi
+
+            # (Opcional) Si generas reportes de cobertura LCOV para JavaScript/TypeScript
+            # Asegúrate que el archivo lcov.info esté disponible (ej. desde el workspace)
+            # if [ -f "coverage/lcov.info" ]; then
+            #   SCANNER_PARAMS="${SCANNER_PARAMS} -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info"
+            # fi
+
+            echo "Ejecutando SonarScanner con los siguientes parámetros:"
+            echo "${SCANNER_PARAMS}" # Muestra los parámetros para depuración
+            sonar-scanner ${SCANNER_PARAMS}
 
 workflows:
   version: 2
   test_and_analyze:
     jobs:
-      - test
-      - sonarcloud:
+      - test:
+          # (Opcional) Contextos para variables de entorno
+          context:
+            - slack-secrets # Donde tendrías SLACK_WEBHOOK_URL_GIAN
+            - org-global-secrets # Donde podrías tener otras variables comunes
+      - sonarcloud_analysis:
           requires:
-            - test
+            - test # Asegura que el análisis de SonarCloud se ejecute después de los tests
+          # (Opcional) Contextos para variables de entorno
+          context:
+            - sonar-secrets # Donde tendrías SONAR_TOKEN, SONAR_ORGANIZATION, SONAR_PROJECT_KEY
+            - org-global-secrets
+          # (Opcional) Filtros para ejecutar solo en ciertas ramas o PRs
+          # filters:
+          #   branches:
+          #     only:
+          #       - main
+          #       - develop
+          #       - /pull\/.*/ # Para todos los Pull Requests
 
 
 #Usa una imagen de Docker con Node.js 18.17.1.
