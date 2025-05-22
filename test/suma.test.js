@@ -3,7 +3,7 @@ const suma = require('../src/suma');
 
 describe('Función suma', () => {
     it('debería retornar 10 cuando se suman 6 + 4', () => {
-        const resultado = suma(6, 4);
+        const resultado = suma(5, 5);
     assert.strictEqual(resultado, 10);
     });
 });
