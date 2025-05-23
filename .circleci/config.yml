@@ -69,7 +69,9 @@ jobs:
           when: on_success
           command: |
             curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"🚀 *Deploy en Render exitoso.* 🎉 https://entorno-ic.onrender.com"}' \
+            --data '{
+              "text": "✅ *Deploy exitoso en Render!* 🎉\n\n*Proyecto:* Entorno-IC\n*Branch:* '"$CIRCLE_BRANCH"'\n*Commit:* '"$CIRCLE_SHA1"'\n*Autor:* '"$CIRCLE_USERNAME"'\n\n🔗 https://entorno-ic.onrender.com"
+            }' \
             $SLACK_WEBHOOK_URL_GIAN
       - run:
           name: Notify Slack on Failure (Deploy)
