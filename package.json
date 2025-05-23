@@ -6,7 +6,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "mocha",
-    "sendmail": "node sendMail.js"
+    "sendmail": "node sendmail.js"
   },
   "keywords": [],
   "author": "",
