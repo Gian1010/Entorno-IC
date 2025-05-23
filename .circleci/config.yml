@@ -89,6 +89,11 @@ jobs:
           name: Mover tarjeta Trello a lista Terminada
           command: |
             curl -X PUT "https://api.trello.com/1/cards/${TRELLO_CARD_ID}?idList=${TRELLO_LIST_ID_DONE}&key=${TRELLO_KEY}&token=${TRELLO_TOKEN}"
+      - run:
+              name: Marcar tarjeta como completada en Trello
+              command: |
+                curl -X PUT "https://api.trello.com/1/cards/$TRELLO_CARD_ID?key=$TRELLO_KEY&token=$TRELLO_TOKEN" \
+                  -d "dueComplete=true"
 
 workflows:
   version: 2
