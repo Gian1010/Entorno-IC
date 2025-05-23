@@ -70,7 +70,7 @@ jobs:
           command: |
             curl -X POST -H 'Content-type: application/json' \
             --data '{
-              "text": "✅ *Deploy exitoso en Render!* 🎉\n\n*Proyecto:* Entorno-IC\n*Branch:* '"$CIRCLE_BRANCH"'\n*Commit:* '"$CIRCLE_SHA1"'\n*Autor:* '"$CIRCLE_USERNAME"'\n\n🔗 https://entorno-ic.onrender.com"
+              "text": "✅ *Deploy exitoso en Render!* 🎉\n\n*Proyecto:* Entorno-IC\n*Branch:* '"$CIRCLE_BRANCH"'\n*Commit:* '"$CIRCLE_SHA1"'\n*Autor:* '"$CIRCLE_USERNAME"'\n\n🔗 https://entorno-ic-gian.onrender.com/"
             }' \
             $SLACK_WEBHOOK_URL_GIAN
       - run:
@@ -92,22 +92,6 @@ workflows:
       - deploy_render:
           requires:
             - sonarcloud
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
