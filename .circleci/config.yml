@@ -24,6 +24,11 @@ jobs:
             curl -X POST -H 'Content-type: application/json' \
             --data '{"text":"❌ *Fallo en los tests* en CircleCI 🚨"}' \
             $SLACK_WEBHOOK_URL_GIAN
+      - run:
+          name: Send mail on tests success
+          command: |
+            npm run sendmail -- "Tests exitosos" "Los tests pasaron correctamente en CircleCI."
+
 
   sonarcloud:
     docker:
