@@ -38,7 +38,6 @@ jobs:
       - run:
           name: Ejecutar análisis SonarCloud
           command: npx sonar-scanner
-
       - run:
           name: Verificar estado del Quality Gate
           command: |
@@ -57,14 +56,28 @@ jobs:
               $SLACK_WEBHOOK_URL_GIAN
             fi
 
+  deploy_render:
+    docker:
+      - image: curlimages/curl:latest
+    steps:
+      - run:
+          name: Deploy to Render
+          command: |
+            curl -X POST $RENDER_DEPLOY_HOOK_URL
+            echo "🚀 Deploy trigger sent to Render"
+
 workflows:
   version: 2
-  test_and_analyze:
+  test_analyze_and_deploy:
     jobs:
       - test
       - sonarcloud:
           requires:
             - test
+      - deploy_render:
+          requires:
+            - sonarcloud
+
 
 
 
