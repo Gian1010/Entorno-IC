@@ -90,7 +90,6 @@ jobs:
           command: |
             curl -X PUT "https://api.trello.com/1/cards/${TRELLO_CARD_ID}?idList=${TRELLO_LIST_ID_DONE}&key=${TRELLO_KEY}&token=${TRELLO_TOKEN}"
 
-
 workflows:
   version: 2
   test_analyze_and_deploy:
