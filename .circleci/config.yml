@@ -46,41 +46,37 @@ jobs:
             if [ "$STATUS" != "OK" ]; then
               echo "❌ Quality Gate falló: $STATUS"
               curl -X POST -H 'Content-type: application/json' \
-              --data "{\"text\":\"🚨 *El análisis de SonarCloud falló el Quality Gate.* Revisá: https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC\"}" \
+              --data '{"text":"🚨 *El análisis de SonarCloud falló el Quality Gate.* Revisá: https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
               $SLACK_WEBHOOK_URL_GIAN
               exit 1
             else
-              echo "✅ Quality Gate pasó con Éxito"
+              echo "✅ Quality Gate pasó con Exito"
               curl -X POST -H 'Content-type: application/json' \
-              --data "{\"text\":\"✅ *El código pasó el Quality Gate en SonarCloud.* ¡Excelente trabajo Gianfranco! 🎉🎉🎉\n🔗 https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC\"}" \
+              --data '{"text":"✅ *El código pasó el Quality Gate en SonarCloud.* ¡Excelente trabajo Gianfranco! 🎉🎉🎉\n🔗 https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
               $SLACK_WEBHOOK_URL_GIAN
+            fi
 
   deploy_render:
     docker:
-      - image: curlimages/curl:latest
+      - image: cimg/node:18.17.1
     steps:
       - run:
-          name: Deploy to Render
+          name: Trigger Deploy on Render
           command: |
             curl -X POST $RENDER_DEPLOY_HOOK_URL
-            echo "🚀 Deploy trigger sent to Render"
       - run:
           name: Notify Slack on Success (Deploy)
           when: on_success
           command: |
             curl -X POST -H 'Content-type: application/json' \
-            --data "{
-              \"text\": \"✅ *Deploy exitoso en Render!* 🎉\n\n*Proyecto:* Entorno-IC\n*Branch:* $CIRCLE_BRANCH\n*Commit:* $CIRCLE_SHA1\n*Autor:* $CIRCLE_USERNAME\n\n🔗 https://entorno-ic.onrender.com\"
-            }" \
+            --data '{"text":"🚀 *Deploy en Render exitoso.* 🎉 https://entorno-ic.onrender.com"}' \
             $SLACK_WEBHOOK_URL_GIAN
       - run:
           name: Notify Slack on Failure (Deploy)
           when: on_fail
           command: |
             curl -X POST -H 'Content-type: application/json' \
-            --data "{
-              \"text\": \"❌ *El deploy en Render falló.* 🚨\n🔗 $CIRCLE_BUILD_URL\"
-            }" \
+            --data "{\"text\":\"❌ *El deploy en Render falló.* 🚨 Revisar en CircleCI: $CIRCLE_BUILD_URL\"}" \
             $SLACK_WEBHOOK_URL_GIAN
 
 workflows:
@@ -94,6 +90,7 @@ workflows:
       - deploy_render:
           requires:
             - sonarcloud
+
 
 
 
