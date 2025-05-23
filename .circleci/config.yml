@@ -26,8 +26,14 @@ jobs:
             $SLACK_WEBHOOK_URL_GIAN
       - run:
           name: Send mail on tests success
+          when: on_success
           command: |
             npm run sendmail -- "Tests exitosos" "Los tests pasaron correctamente en CircleCI."
+      - run:
+          name: Send mail on tests success
+          when: on_fail
+          command: |
+            npm run sendmail -- "Tests no exitosos" "Los tests no pasaron correctamente en CircleCI."
 
 
   sonarcloud:
@@ -60,6 +66,16 @@ jobs:
               --data '{"text":"✅ *El código pasó el Quality Gate en SonarCloud.* ¡Excelente trabajo Gianfranco! 🎉🎉🎉\n🔗 https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"}' \
               $SLACK_WEBHOOK_URL_GIAN
             fi
+      - run:
+          name: Send mail on SonarCloud success
+          when: on_success
+          command: |
+            npm run sendmail -- "SonarCloud OK" "El análisis de SonarCloud terminó correctamente."
+      - run:
+          name: Send mail on SonarCloud success
+          when: on_fail
+          command: |
+            npm run sendmail -- "SonarCloud Failed" "El análisis de SonarCloud no terminó correctamente."
 
   deploy_render:
     docker:
@@ -85,6 +101,16 @@ jobs:
             curl -X POST -H 'Content-type: application/json' \
             --data "{\"text\":\"❌ *El deploy en Render falló.* 🚨 Revisar en CircleCI: $CIRCLE_BUILD_URL\"}" \
             $SLACK_WEBHOOK_URL_GIAN
+      - run:
+          name: Send mail on Deploy success
+          when: on_success
+          command: |
+            npm run sendmail -- "Deploy OK" "El Deploy terminó correctamente."
+      - run:
+          name: Send mail on Deploy Failure
+          when: on_fail
+          command: |
+            npm run sendmail -- "Deploy Failed" "El Deploy no terminó correctamente."
 
   move_card_trello:
     docker:
