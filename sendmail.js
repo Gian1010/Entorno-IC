@@ -7,7 +7,10 @@ const message = args[1] || 'Mensaje de notificación';
 async function sendMail() {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,       // SSL
+      requireTLS: true,   // TLS
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS,
@@ -24,7 +27,6 @@ async function sendMail() {
     console.log('📧 Correo enviado correctamente:', info.messageId);
   } catch (error) {
     console.error('❌ Error al enviar el correo:', error.message);
-    console.error(error.stack);
     process.exit(1);
   }
 }
