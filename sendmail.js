@@ -6,21 +6,24 @@ const message = args[1] || 'Mensaje de notificación';
 
 async function sendMail() {
     let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
+        service: 'gmail',
+        auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_PASS,
     },
     });
 
-    let info = await transporter.sendMail({
-    from: `"CI Bot" <${process.env.GMAIL_USER}>`,
-    to: process.env.GMAIL_TO,
-    subject,
-    text: message,
+    await transporter.sendMail({
+        from: `"CI Notifier" <${process.env.GMAIL_USER}>`,
+        to: process.env.GMAIL_RECEIVER,
+        subject,
+        text: message,
     });
 
-    console.log('Mensaje enviado:', info.messageId);
+    console.log('📧 Correo enviado correctamente');
 }
 
-sendMail().catch(console.error);
+sendMail().catch((error) => {
+    console.error('❌ Error al enviar el correo:', error);
+    process.exit(1);
+});
