@@ -41,6 +41,7 @@ jobs:
       - image: cimg/node:18.17.1
     steps:
       - checkout
+      - run: npm install
       - run:
           name: Instalar jq y dependencias
           command: |
@@ -81,6 +82,7 @@ jobs:
     docker:
       - image: cimg/node:18.17.1
     steps:
+      - run: npm install
       - run:
           name: Trigger Deploy on Render
           command: |
