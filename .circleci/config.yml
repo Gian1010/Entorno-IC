@@ -132,11 +132,14 @@ jobs:
       - run:
           name: Validar coincidencia de commit con tarjetas "En proceso"
           command: |
+            # Obtener mensaje del último commit
             COMMIT_MSG=$(git log -1 --pretty=%s)
             echo "Último commit: $COMMIT_MSG"
 
+            # Obtener tarjetas de la lista "En proceso"
             RESPONSE=$(curl -s "https://api.trello.com/1/lists/$TRELLO_LIST_ID_IN_PROGRESS/cards?key=$TRELLO_KEY&token=$TRELLO_TOKEN")
 
+            # Buscar si alguna tarjeta coincide con el commit
             MATCHED_CARD_ID=$(echo "$RESPONSE" | jq -r --arg msg "$COMMIT_MSG" '.[] | select(.name == $msg) | .id')
 
             if [ -n "$MATCHED_CARD_ID" ]; then
