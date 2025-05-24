@@ -111,15 +111,13 @@ jobs:
           name: Send mail on Deploy success
           when: on_success
           command: |
-            npm run sendmail -- "✅ Deploy exitoso en Render" "El despliegue fue exitoso. 🎉\n\nProyecto: Entorno-IC\nBranch: $CIRCLE_BRANCH\nCommit: $CIRCLE_SHA1\nAutor: $CIRCLE_USERNAME\n🔗 https://entorno-ic-gian.onrender.com/"
+            npm run sendmail -- "✅ Deploy exitoso en Render" "El despliegue fue exitoso. 🎉 Proyecto: Entorno-IC Branch: $CIRCLE_BRANCH Commit: $CIRCLE_SHA1 Autor: $CIRCLE_USERNAME 🔗 https://entorno-ic-gian.onrender.com/"
 
       - run:
           name: Send mail on Deploy Failure
           when: on_fail
           command: |
-            npm run sendmail -- "❌ Deploy fallido en Render" "El despliegue falló en Render. 🚨\nRevisar en CircleCI: $CIRCLE_BUILD_URL"
-
-
+            npm run sendmail -- "❌ Deploy fallido en Render" "El despliegue falló en Render. 🚨 Revisar en CircleCI: $CIRCLE_BUILD_URL"
 
   move_card_trello:
     docker:
