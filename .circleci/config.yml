@@ -132,14 +132,11 @@ jobs:
       - run:
           name: Validar coincidencia de commit con tarjetas "En proceso"
           command: |
-            # Obtener mensaje del último commit
             COMMIT_MSG=$(git log -1 --pretty=%s)
             echo "Último commit: $COMMIT_MSG"
 
-            # Obtener tarjetas de la lista "En proceso"
             RESPONSE=$(curl -s "https://api.trello.com/1/lists/$TRELLO_LIST_ID_IN_PROGRESS/cards?key=$TRELLO_KEY&token=$TRELLO_TOKEN")
 
-            # Buscar si alguna tarjeta coincide con el commit
             MATCHED_CARD_ID=$(echo "$RESPONSE" | jq -r --arg msg "$COMMIT_MSG" '.[] | select(.name == $msg) | .id')
 
             if [ -n "$MATCHED_CARD_ID" ]; then
@@ -149,9 +146,14 @@ jobs:
               curl -X PUT "https://api.trello.com/1/cards/$MATCHED_CARD_ID?idList=$TRELLO_LIST_ID_DONE&key=$TRELLO_KEY&token=$TRELLO_TOKEN"
               curl -X PUT "https://api.trello.com/1/cards/$MATCHED_CARD_ID?key=$TRELLO_KEY&token=$TRELLO_TOKEN" \
                 -d "dueComplete=true"
+
+              curl -X POST -H 'Content-type: application/json' \
+                --data "{\"text\":\"📌 La tarjeta *$COMMIT_MSG* fue movida a *Hecho* y marcada como completada en Trello.\"}" \
+                $SLACK_WEBHOOK_URL_GIAN
+
+              npm run sendmail -- "Tarjeta movida a Hecho" "📌 La tarjeta *$COMMIT_MSG* fue movida a *Hecho* y marcada como completada en Trello."
             else
               echo "⛔ No se encontró ninguna tarjeta con el mismo nombre que el commit. No se realiza ninguna acción."
-            fi
 
 workflows:
   version: 2
