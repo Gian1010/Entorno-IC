@@ -28,13 +28,12 @@ jobs:
           name: Send mail on tests success
           when: on_success
           command: |
-            npm run sendmail -- "Tests exitosos" "Los tests pasaron correctamente en CircleCI."
+            npm run sendmail -- "Tests exitosos" "✅ ¡Los tests pasaron con éxito! 🎉"
       - run:
           name: Send mail on tests success
           when: on_fail
           command: |
-            npm run sendmail -- "Tests no exitosos" "Los tests no pasaron correctamente en CircleCI."
-
+            npm run sendmail -- "Tests no exitosos" "❌ *Fallo en los tests* en CircleCI 🚨"
 
   sonarcloud:
     docker:
@@ -71,12 +70,12 @@ jobs:
           name: Send mail on SonarCloud success
           when: on_success
           command: |
-            npm run sendmail -- "SonarCloud OK" "El análisis de SonarCloud terminó correctamente."
+            npm run sendmail -- "SonarCloud OK" ""✅ *El código pasó el Quality Gate en SonarCloud.* ¡Excelente trabajo Gianfranco! 🎉🎉🎉\n🔗 https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC""
       - run:
           name: Send mail on SonarCloud success
           when: on_fail
           command: |
-            npm run sendmail -- "SonarCloud Failed" "El análisis de SonarCloud no terminó correctamente."
+            npm run sendmail -- "SonarCloud Failed" "🚨 *El análisis de SonarCloud falló el Quality Gate.* Revisá: https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"
 
   deploy_render:
     docker:
@@ -108,12 +107,12 @@ jobs:
           name: Send mail on Deploy success
           when: on_success
           command: |
-            npm run sendmail -- "Deploy OK" "El Deploy terminó correctamente."
+            npm run sendmail -- "Deploy OK" "✅ *Deploy exitoso en Render!* 🎉\n\n*Proyecto:* Entorno-IC\n*Branch:* '"$CIRCLE_BRANCH"'\n*Commit:* '"$CIRCLE_SHA1"'\n*Autor:* '"$CIRCLE_USERNAME"'\n\n🔗 https://entorno-ic-gian.onrender.com/"
       - run:
           name: Send mail on Deploy Failure
           when: on_fail
           command: |
-            npm run sendmail -- "Deploy Failed" "El Deploy no terminó correctamente."
+            npm run sendmail -- "Deploy Failed" "❌ *El deploy en Render falló.* 🚨 Revisar en CircleCI: $CIRCLE_BUILD_URL\"
 
 
   move_card_trello:
