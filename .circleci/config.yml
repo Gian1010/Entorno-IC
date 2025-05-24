@@ -82,6 +82,7 @@ jobs:
     docker:
       - image: cimg/node:18.17.1
     steps:
+      - checkout
       - run: npm install
       - run:
           name: Trigger Deploy on Render
