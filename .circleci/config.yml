@@ -126,8 +126,9 @@ jobs:
       - checkout
       - run:
           name: Instalar jq
-          ommand: |
-                sudo apt-get update && sudo apt-get install -y jq
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y jq
       - run:
           name: Validar coincidencia de commit con tarjetas "En proceso"
           command: |
