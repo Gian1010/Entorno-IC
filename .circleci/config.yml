@@ -157,6 +157,7 @@ jobs:
               npm run sendmail -- "Tarjeta movida a Hecho" "📌 La tarjeta *$COMMIT_MSG* fue movida a *Hecho* y marcada como completada en Trello."
             else
               echo "⛔ No se encontró ninguna tarjeta con el mismo nombre que el commit. No se realiza ninguna acción."
+            fi
 
 workflows:
   version: 2
