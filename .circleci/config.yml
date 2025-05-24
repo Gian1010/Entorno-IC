@@ -121,7 +121,7 @@ jobs:
 
   move_card_trello:
     docker:
-      - image: curlimages/curl:latest
+      - image: cimg/node:18.17.1
     steps:
       - checkout
       - run:
