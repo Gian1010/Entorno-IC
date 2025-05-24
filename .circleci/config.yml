@@ -124,6 +124,7 @@ jobs:
       - image: cimg/node:18.17.1
     steps:
       - checkout
+      - run: npm install
       - run:
           name: Instalar jq
           command: |
