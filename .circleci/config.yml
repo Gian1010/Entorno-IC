@@ -119,29 +119,29 @@ jobs:
           command: |
             npm run sendmail -- "❌ Deploy fallido en Render" "El despliegue falló en Render. 🚨 Revisar en CircleCI: $CIRCLE_BUILD_URL"
 
-move_card_trello:
-  docker:
-    - image: curlimages/curl:latest
-  steps:
-    - checkout
-    - run:
-        name: Validar coincidencia de commit y tarjeta
-        command: |
-          COMMIT_MSG=$(git log -1 --pretty=%s)
-          echo "Último commit: $COMMIT_MSG"
+  move_card_trello:
+    docker:
+      - image: curlimages/curl:latest
+    steps:
+      - checkout
+      - run:
+          name: Validar coincidencia de commit y tarjeta
+          command: |
+            COMMIT_MSG=$(git log -1 --pretty=%s)
+            echo "Último commit: $COMMIT_MSG"
 
-          CARD_NAME=$(curl -s "https://api.trello.com/1/cards/$TRELLO_CARD_ID?key=$TRELLO_KEY&token=$TRELLO_TOKEN" | jq -r '.name')
-          echo "Nombre de la tarjeta: $CARD_NAME"
+            CARD_NAME=$(curl -s "https://api.trello.com/1/cards/$TRELLO_CARD_ID?key=$TRELLO_KEY&token=$TRELLO_TOKEN" | jq -r '.name')
+            echo "Nombre de la tarjeta: $CARD_NAME"
 
-          if [ "$COMMIT_MSG" = "$CARD_NAME" ]; then
-            echo "✅ Coinciden. Moviendo tarjeta y marcando como completada..."
+            if [ "$COMMIT_MSG" = "$CARD_NAME" ]; then
+              echo "✅ Coinciden. Moviendo tarjeta y marcando como completada..."
 
-            curl -X PUT "https://api.trello.com/1/cards/${TRELLO_CARD_ID}?idList=${TRELLO_LIST_ID_DONE}&key=${TRELLO_KEY}&token=${TRELLO_TOKEN}"
-            curl -X PUT "https://api.trello.com/1/cards/$TRELLO_CARD_ID?key=$TRELLO_KEY&token=$TRELLO_TOKEN" \
-              -d "dueComplete=true"
-          else
-            echo "⛔ No coinciden. No se realiza ninguna acción en Trello."
-          fi
+              curl -X PUT "https://api.trello.com/1/cards/${TRELLO_CARD_ID}?idList=${TRELLO_LIST_ID_DONE}&key=${TRELLO_KEY}&token=${TRELLO_TOKEN}"
+              curl -X PUT "https://api.trello.com/1/cards/$TRELLO_CARD_ID?key=$TRELLO_KEY&token=$TRELLO_TOKEN" \
+                -d "dueComplete=true"
+            else
+              echo "⛔ No coinciden. No se realiza ninguna acción en Trello."
+            fi
 
 workflows:
   version: 2
