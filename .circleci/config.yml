@@ -80,7 +80,6 @@ jobs:
           command: |
             npm run sendmail -- "❌ SonarCloud: Quality Gate fallido" "El análisis de SonarCloud falló el Quality Gate. Es necesario revisar el informe: 🔗 https://sonarcloud.io/project/overview?id=Gian1010_Entorno-IC"
 
-
   deploy_render:
     docker:
       - image: cimg/node:18.17.1
