@@ -159,6 +159,26 @@ jobs:
               echo "⛔ No se encontró ninguna tarjeta con el mismo nombre que el commit. No se realiza ninguna acción."
             fi
 
+  move_card:
+    docker:
+      - image: cimg/node:18.17.1
+    steps:
+      - checkout
+      - run: npm install
+      - run:
+          name: Instalar jq
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y jq
+      - run: 
+          name: Mover tarjeta de trello
+          command: |
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            echo "Último commit: $COMMIT_MSG"
+            export TRELLO_CARD_ID=$(echo "$COMMIT_MSG" | grep -oE 'TRELLO-[0-9]+')
+            echo "ID detectado: $TRELLO_CARD_ID"
+            node mover-tarjeta.js
+
 workflows:
   version: 2
   test_analyze_and_deploy:
@@ -170,7 +190,7 @@ workflows:
       - deploy_render:
           requires:
             - sonarcloud
-      - move_card_trello:
+      - move_card:
           requires:
             - deploy_render
 
