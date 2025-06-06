@@ -129,24 +129,33 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install -y jq
-      - run: 
+      - run:
           name: Mover tarjeta de trello
           command: |
             COMMIT_MSG=$(git log -1 --pretty=%B)
             echo "Último commit: $COMMIT_MSG"
             export TRELLO_CARD_ID=$(echo "$COMMIT_MSG" | grep -oE 'TRELLO-[0-9]+')
             echo "ID detectado: $TRELLO_CARD_ID"
-            node mover-tarjeta.js
+
+            CARD_NAME=$(node mover-tarjeta.js | grep '^TRELLO_CARD_NAME=' | sed 's/TRELLO_CARD_NAME=//')
+
+            echo "Card name capturado: $CARD_NAME"
+            echo "export CARD_NAME=\"$CARD_NAME\"" >> $BASH_ENV
+
       - run:
           name: Notify Slack and Gmail
           when: on_success
           command: |
-            echo "Notificando por Slack y Gmail..."
-            curl -X POST -H 'Content-type: application/json' \
-              --data "{\"text\":\"📌 La tarjeta $CARD_NAME fue movida a Hecho y marcada como completada en Trello.\"}" \
-              $SLACK_WEBHOOK_URL_GIAN
+            if [ -n "$CARD_NAME" ]; then
+              echo "Notificando por Slack y Gmail..."
+              curl -X POST -H 'Content-type: application/json' \
+                --data "{\"text\":\"📌 La tarjeta $CARD_NAME fue movida a Hecho y marcada como completada en Trello.\"}" \
+                $SLACK_WEBHOOK_URL_GIAN
 
-            npm run sendmail -- "Tarjeta movida a Hecho" "📌 La tarjeta $CARD_NAME fue movida a Hecho y marcada como completada en Trello."
+              npm run sendmail -- "Tarjeta movida a Hecho" "📌 La tarjeta $CARD_NAME fue movida a Hecho y marcada como completada en Trello."
+            else
+              echo "No hay tarjeta movida, no se envían notificaciones."
+            fi
 
 workflows:
   version: 2

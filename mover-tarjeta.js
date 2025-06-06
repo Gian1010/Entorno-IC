@@ -63,4 +63,5 @@ function putRequest(url, data = null) {
     const completeUrl = `https://api.trello.com/1/cards/${card.id}?key=${TRELLO_KEY}&token=${TRELLO_TOKEN}`;
     await putRequest(completeUrl, { dueComplete: true });
     console.log("✅ Tarjeta marcada como completada.");
+    console.log(`TRELLO_CARD_NAME=${card.name}`);
 })();
