@@ -143,10 +143,10 @@ jobs:
           command: |
             echo "Notificando por Slack y Gmail..."
             curl -X POST -H 'Content-type: application/json' \
-              --data "{\"text\":\"📌 La tarjeta fue movida a Hecho y marcada como completada en Trello.\"}" \
+              --data "{\"text\":\"📌 La tarjeta $CARD_NAME fue movida a Hecho y marcada como completada en Trello.\"}" \
               $SLACK_WEBHOOK_URL_GIAN
 
-            npm run sendmail -- "Tarjeta movida a Hecho" "📌 La tarjeta fue movida a Hecho y marcada como completada en Trello."
+            npm run sendmail -- "Tarjeta movida a Hecho" "📌 La tarjeta $CARD_NAME fue movida a Hecho y marcada como completada en Trello."
 
 workflows:
   version: 2
