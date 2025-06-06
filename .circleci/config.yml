@@ -156,12 +156,12 @@ workflows:
       #- sonarcloud:
           #requires:
             #- test
-      - deploy_render:
+      #- deploy_render:
           #requires:
             #- sonarcloud
       - move_card:
-          requires:
-            - deploy_render
+          #requires:
+            #- deploy_render
 
 
 #Usa una imagen de Docker con Node.js 18.17.1.
