@@ -8,6 +8,7 @@ describe('Función suma', () => {
     });
 });
 
+
 //it lo uso para definir una prueba individual
 //describe me agrupa un conjunto de pruebas
 //assert.strictequal verifica que mi resultado de la suma sea = 10
