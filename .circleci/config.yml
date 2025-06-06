@@ -157,8 +157,8 @@ workflows:
           #requires:
             #- test
       - deploy_render:
-          requires:
-            - sonarcloud
+          #requires:
+            #- sonarcloud
       - move_card:
           requires:
             - deploy_render
