@@ -159,7 +159,7 @@ jobs:
 
 workflows:
   version: 2
-  test_analyze_and_deploy:
+  Entorno-Automatizado-Gian:
     jobs:
       - test
       - sonarcloud:
