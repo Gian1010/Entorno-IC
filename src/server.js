@@ -2,7 +2,7 @@ const express = require('express');
 const suma = require('./suma');
 
 const app = express();
-// Puerto dinámico para entornos como Render
+// este es el puerto dinamico para entornos como Render, basicamente lo uso para que no tarde tanto el deploy
 const port = process.env.PORT || 3000;
 
 app.get('/', (req, res) => {
